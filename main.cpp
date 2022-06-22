@@ -98,25 +98,35 @@ bool sudokusolver(int sudoku[9][9], int row, int col){
 }
 
 void fill(int sudoku[9][9], int row, string line){
-    for(int i=0;i<9;i++){
-        if(line.at(i) == 'X'){
-            sudoku[row][i] = 0;
+    int current_col = 0;
+    for(int i=0;i<11;i++){
+        if(line.at(i) == '.'){
+            sudoku[row][current_col] = 0;
+            current_col++;
+        }else if(line.at(i) == '|'){
+            continue;
         }else{
-            sudoku[row][i] = line.at(i) - '0';
-
+            sudoku[row][current_col] = line.at(i) - '0';
+            current_col++;
         }
     }
 }
 
 string row_string(int sudoku[9][9], int row){
     string line;
-    for(int i=0;i<9;i++){
-        string str;
-        stringstream ss;
-        ss << sudoku[row][i];
-        ss >> str;
+    int current_col=0;
+    for(int i=0;i<11;i++){
+        if(i == 3 || i == 7){
+            line = line.append("|");
+        }else{
+            string str;
+            stringstream ss;
+            ss << sudoku[row][current_col];
+            ss >> str;
+            current_col++;
 
-        line = line.append(str);
+            line = line.append(str);
+        }
     }
 
     return line;
@@ -133,24 +143,48 @@ int main()
     ifstream file(filename.c_str());
     ofstream loggerFile("solutions.txt", ios_base::app);
 
+    while(!file){
+        cout << "This file does not exist! Enter new filename: ";
+        cin >> filename;
+        ifstream file(filename.c_str());
+
+        if(file.is_open()){
+            break;
+        }
+    }
+
     string line;
     getline(file, line);
 
     int count = atoi(line.c_str());
     loggerFile << line;
 
+    int current_row = 0;
     for(int i=0;i<count;i++){
-        for(int j=0;j<9;j++){
+        for(int j=0;j<11;j++){
             getline(file, line);
-            fill(sudoku, j, line);
+            if(j != 3 && j != 7){
+                fill(sudoku, current_row, line);
+                current_row++;
+            }
         }
+
+
+        current_row = 0;
 
         if(sudokusolver(sudoku, 0, 0) == true){
             loggerFile << endl;
-            for(int j=0;j<9;j++){
-                loggerFile << row_string(sudoku, j);
-                loggerFile << endl;
+            for(int j=0;j<11;j++){
+                if(j == 3 || j == 7){
+                    loggerFile << "-----------" << endl;
+                }else{
+                    loggerFile << row_string(sudoku, current_row) << endl;
+                    current_row++;
+
+                }
             }
+
+            current_row = 0;
         }
 
         getline(file, line);

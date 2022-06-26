@@ -9,10 +9,11 @@
 using namespace std;
 
 void print(int arr[9][9]){
-     for (int i = 0; i < 9; i++){
-         for(int j = 0; j < 9; j++)
+    for(int i=0;i<9;i++){
+        for(int j=0;j<9;j++){
             cout << arr[i][j] << " ";
-         cout << endl;
+        }
+        cout << endl;
     }
 }
 
@@ -89,7 +90,6 @@ bool sudokusolver(int sudoku[9][9], int row, int col){
             }
         }
 
-
         sudoku[row][col] = 0;
     }
 
@@ -97,7 +97,35 @@ bool sudokusolver(int sudoku[9][9], int row, int col){
 
 }
 
-void fill_row(int sudoku[9][9], int row, string line){
+void fill_sudoku(int sudoku[9][9], string line){
+    int count = 0;
+    for(int i=0;i<9;i++){
+        for(int j=0;j<9;j++){
+            sudoku[i][j] = line.at(count) - '0';
+            count++;
+        }
+    }
+
+}
+
+string sudoku_in_line(int sudoku[9][9]){
+    string line;
+
+    for(int i = 0; i < 9; i++){
+         for(int j = 0; j < 9; j++){
+            string str;
+            stringstream ss;
+            ss << sudoku[i][j];
+            ss >> str;
+            line = line.append(str);
+
+         }
+    }
+
+    return line;
+}
+
+void fill_row_from_string(int sudoku[9][9], int row, string line){
     int current_col = 0;
     for(int i=0;i<11;i++){
         if(line.at(i) == '.'){
@@ -135,60 +163,79 @@ string from_row_to_string(int sudoku[9][9], int row){
 
 int main()
 {
+
+    int format;
+
+    cout << "Enter format you will use: " << endl;
+    cout << "1 for .ss" << endl;
+    cout << "2 for .sdm" << endl;
+
+    cin >> format;
+
     string filename;
     cout << "Enter filename: ";
     cin >> filename;
 
     int sudoku[9][9];
-    ifstream file(filename.c_str());
-    ofstream loggerFile("solutions.txt", ios_base::app);
 
-    while(!file){
+    ifstream file;
+    file.open( filename.c_str( ) );
+    //ifstream file(filename.c_str());
+    ofstream outputfile("solutions.txt", ios_base::app);
+
+    while(file.fail( )){
         cout << "This file does not exist! Enter new filename: ";
         cin >> filename;
-        ifstream file(filename.c_str());
-
-        if(file.is_open()){
-            break;
-        }
+        file.open(filename.c_str());
     }
 
     string line;
     getline(file, line);
 
     int count = atoi(line.c_str());
-    loggerFile << line;
 
-    int current_row = 0;
-    for(int i=0;i<count;i++){
-        for(int j=0;j<11;j++){
-            getline(file, line);
-            if(j != 3 && j != 7){
-                fill_row(sudoku, current_row, line);
-                current_row++;
-            }
-        }
-
-
-        current_row = 0;
-
-        if(sudokusolver(sudoku, 0, 0) == true){
-            loggerFile << endl;
+    if(format == 1){
+        int current_row = 0;
+        for(int i=0;i<count;i++){
             for(int j=0;j<11;j++){
-                if(j == 3 || j == 7){
-                    loggerFile << "-----------" << endl;
-                }else{
-                    loggerFile << from_row_to_string(sudoku, current_row) << endl;
+                getline(file, line);
+                if(j != 3 && j != 7){
+                    fill_row_from_string(sudoku, current_row, line);
                     current_row++;
-
                 }
             }
 
+
             current_row = 0;
+
+            if(sudokusolver(sudoku, 0, 0) == true){
+                for(int j=0;j<11;j++){
+                    if(j == 3 || j == 7){
+                        outputfile << "-----------" << endl;
+                    }else{
+                        outputfile << from_row_to_string(sudoku, current_row) << endl;
+                        current_row++;
+
+                    }
+                }
+
+                outputfile << endl;
+
+                current_row = 0;
+            }
+
+            getline(file, line);
         }
+    }else if(format == 2){
+        for(int i=0;i<count;i++){
+            getline(file, line);
+            fill_sudoku(sudoku, line);
 
-        getline(file, line);
+            if(sudokusolver(sudoku, 0, 0) == true){
+                outputfile << sudoku_in_line(sudoku) << endl;
+            }
 
+        }
     }
 
     return 0;

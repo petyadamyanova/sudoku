@@ -11,7 +11,7 @@ using namespace std;
 void print(int arr[9][9]){
      for (int i = 0; i < 9; i++){
          for(int j = 0; j < 9; j++)
-            cout << arr[i][j];
+            cout << arr[i][j] << " ";
          cout << endl;
     }
 }
@@ -97,7 +97,7 @@ bool sudokusolver(int sudoku[9][9], int row, int col){
 
 }
 
-void fill(int sudoku[9][9], int row, string line){
+void fill_row(int sudoku[9][9], int row, string line){
     int current_col = 0;
     for(int i=0;i<11;i++){
         if(line.at(i) == '.'){
@@ -112,7 +112,7 @@ void fill(int sudoku[9][9], int row, string line){
     }
 }
 
-string row_string(int sudoku[9][9], int row){
+string from_row_to_string(int sudoku[9][9], int row){
     string line;
     int current_col=0;
     for(int i=0;i<11;i++){
@@ -164,7 +164,7 @@ int main()
         for(int j=0;j<11;j++){
             getline(file, line);
             if(j != 3 && j != 7){
-                fill(sudoku, current_row, line);
+                fill_row(sudoku, current_row, line);
                 current_row++;
             }
         }
@@ -178,7 +178,7 @@ int main()
                 if(j == 3 || j == 7){
                     loggerFile << "-----------" << endl;
                 }else{
-                    loggerFile << row_string(sudoku, current_row) << endl;
+                    loggerFile << from_row_to_string(sudoku, current_row) << endl;
                     current_row++;
 
                 }

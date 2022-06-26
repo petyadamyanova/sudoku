@@ -180,7 +180,6 @@ int main()
 
     ifstream file;
     file.open( filename.c_str( ) );
-    //ifstream file(filename.c_str());
     ofstream outputfile("solutions.txt", ios_base::app);
 
     while(file.fail( )){
